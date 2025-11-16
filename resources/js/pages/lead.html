@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Lead Entry Form</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        .form-container{
+            background: #fff;
+            width: 500px;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 0 auto;
+            box-shadow: 0 0 10px #ccc;
+        }
+        .form-container h2{
+            text-align: center;
+        }
+        label{
+            font-weight: bold;
+        }
+        input, select, textarea{
+            width:100%;
+            padding: 8px;
+            margin: 6px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button{
+            background: #007BFF;
+            color:#fff;
+            padding:10px 20px;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+        }
+        button:hover{
+            background:#0056d2;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>CRM Lead Entry Form</h2>
+
+    <form action="#" method="POST">
+
+        <label>Full Name *</label>
+        <input type="text" name="name" placeholder="Enter full name" required>
+
+        <label>Email *</label>
+        <input type="email" name="email" placeholder="Enter email" required>
+
+        <label>Phone *</label>
+        <input type="text" name="phone" placeholder="Enter phone number" required>
+
+        <label>Company</label>
+        <input type="text" name="company" placeholder="Enter company name">
+
+        <label>Lead Source *</label>
+        <select name="source" required>
+            <option value="">Select Source</option>
+            <option>Website</option>
+            <option>Social Media</option>
+            <option>Google Ads</option>
+            <option>Referral</option>
+            <option>Cold Call</option>
+        </select>
+
+        <label>Lead Status *</label>
+        <select name="lead_status" required>
+            <option value="">Select Status</option>
+            <option>New</option>
+            <option>Contacted</option>
+            <option>Qualified</option>
+            <option>Proposal Sent</option>
+            <option>Converted</option>
+        </select>
+
+        <label>Message / Notes</label>
+        <textarea name="message" rows="4" placeholder="Write notes here"></textarea>
+
+        <button type="submit">Save Lead</button>
+    </form>
+</div>
+
+</body>
+</html>
