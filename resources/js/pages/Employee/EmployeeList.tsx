@@ -174,9 +174,24 @@ const EmployeeList: React.FC<Props> = ({ employees: employeeData }) => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {employeeData.data.map((employee) => (
-                                    <EmployeeRow key={employee.id} employee={employee} />
-                                ))}
+                                  {employeeData.data && employeeData.data.length > 0 ? (
+                                    employeeData.data.map((employee) => (
+                                        <EmployeeRow key={employee.id} employee={employee} />
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-12 text-center">
+                                            <div className="flex flex-col items-center justify-center">
+                                                <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                                                </svg>
+                                                <h3 className="text-lg font-medium text-gray-900 mb-2">No employees found</h3>
+                                                <p className="text-gray-500 mb-4">Get started by adding your first employee to the system.</p>
+                                                
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -270,8 +285,8 @@ const EmployeeRow: React.FC<{ employee: Employee }> = ({ employee }) => {
                 </div>
             </td>
           
-            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
-                <div className="flex justify-end space-x-2">
+            <td className="px-6 py-4 whitespace-nowrap  text-sm font-medium relative text-center">
+                <div className="flex justify-center space-x-2">
                     <Link
                         href={employees.edit(employee.id)}
                         className="text-orange-600 hover:text-orange-900 bg-orange-50 hover:bg-orange-100 px-2 py-1 mt-1     rounded-lg text-sm font-medium transition-colors duration-150"
@@ -287,7 +302,7 @@ const EmployeeRow: React.FC<{ employee: Employee }> = ({ employee }) => {
                     >
                         Delete
                     </button> */}
-                    <button className="text-blue-600 hover:text-blue-900 bg-blue-50 rounded-lg w-full text-left px-1 py-2 text-sm  hover:bg-gray-100 flex items-center">
+                    {/* <button className="text-blue-600 hover:text-blue-900 bg-blue-50 rounded-lg w-full text-left px-1 py-2 text-sm  hover:bg-gray-100 flex items-center">
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
@@ -311,7 +326,7 @@ const EmployeeRow: React.FC<{ employee: Employee }> = ({ employee }) => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                         </svg>
                         Assign to Other
-                    </button>
+                    </button> */}
                     
                 </div>
             </td>

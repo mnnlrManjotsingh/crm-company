@@ -11,7 +11,7 @@ export default function Welcome({
 
     return (
         <>
-            <Head title="CRM - Powerful Software for Clinics">
+            <Head title="ChatConnect - Grow Faster with an All-in-One Sales & WhatsApp CRM">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link
                     href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600"
@@ -27,10 +27,10 @@ export default function Welcome({
                         <div className="flex items-center justify-between">
                             {/* Logo */}
                             <div className="flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600">
-                                    <span className="text-lg font-bold text-white">CRM</span>
+                                <div className="flex h-12 w-36 items-center justify-center rounded-xl bg-blue-600">
+                                    <span className="text-lg font-bold text-white">ChatConnect</span>
                                 </div>
-                                <span className="text-xl font-bold text-gray-900 ">ClinicCRM</span>
+                                <span className="text-xl font-bold text-gray-900 ">Grow Faster with an All-in-One Sales & WhatsApp CRM</span>
                             </div>
                             
                             {/* Navigation */}
@@ -46,7 +46,7 @@ export default function Welcome({
                                     <>
                                         <Link
                                             href={login()}
-                                            className="rounded-lg px-6 py-2.5 font-medium bg-blue-700 text-white  transition-all hover:text-blue-600 "
+                                            className="rounded-lg px-6 py-2.5 font-medium bg-blue-700 text-white  transition-all hover:bg-blue-600 "
                                         >
                                             Sign In
                                         </Link>
@@ -94,16 +94,18 @@ export default function Welcome({
                          
                             {/* Main Heading */}
                             <h1 className="mb-8 text-5xl font-bold leading-tight text-gray-900 lg:text-7xl lg:leading-tight ">
-                                Welcome to The{' '}
+                                Welcome to Your{' '}
                                 <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 bg-clip-text text-transparent">
-                                    Future of Healthcare
+                                    Growth Command Center
                                 </span>
                             </h1>
                             
-                            {/* Subtitle */}
+                           {/* Subtitle */}
                             <p className="mx-auto mb-12 max-w-3xl text-2xl leading-relaxed text-gray-600 lg:text-3xl  font-light">
-                                Transform your clinic with our <span className="font-semibold text-blue-600 ">all-in-one CRM platform</span> designed for modern medical practices
-                            </p>
+                                Manage your  
+                                <span className="font-semibold text-blue-600 ">sales, conversations, leads and automations from one powerful dashboard.</span>
+                                Everthing you need to scale your business is now in one place
+                            </p>  
                             
                             {/* CTA Buttons */}
                             <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
@@ -187,9 +189,9 @@ export default function Welcome({
                                         <span className="text-xl">📄</span>
                                     </div>
                                     <div>
-                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Paperless Clinic</h3>
+                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Smart Sales Solutions</h3>
                                         <p className="text-gray-600  leading-relaxed">
-                                            Complete digital transformation with paperless records of case histories, follow-ups, medicine records, and investigations.
+                                            Track performance, monitor targets, and manage the entire sales pipeline with real-time insights. Convert opportunities faster with data-driven decisions.
                                         </p>
                                     </div>
                                 </div>
@@ -202,9 +204,9 @@ export default function Welcome({
                                         <span className="text-xl">💊</span>
                                     </div>
                                     <div>
-                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Super-Specialized Pharmacy</h3>
+                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">WhatsApp Business API</h3>
                                         <p className="text-gray-600  leading-relaxed">
-                                            Advanced dispensing module integrated with extensive Homeopathy Formulary featuring potencies for over 3,000 remedies.
+                                            Send and receive messages at scale using secure, official WhatsApp API routes. Broadcast updates, engage customers instantly, and automate communication without limits.
                                         </p>
                                     </div>
                                 </div>
@@ -217,9 +219,9 @@ export default function Welcome({
                                         <span className="text-xl">🏢</span>
                                     </div>
                                     <div>
-                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Front Office Streamlining</h3>
+                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">AI-Powered WhatsApp Chatbot</h3>
                                         <p className="text-gray-600  leading-relaxed">
-                                            Automate operational workflows and administrative tasks so your team can focus on delivering exceptional patient care.
+                                            Automate replies, qualify leads, handle FAQs, and provide 24/7 support. Reduce manual effort while improving customer experience and response time.
                                         </p>
                                     </div>
                                 </div>
@@ -232,9 +234,9 @@ export default function Welcome({
                                         <span className="text-xl">🔒</span>
                                     </div>
                                     <div>
-                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Enterprise-Grade Security</h3>
+                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Lead Management Dashboard</h3>
                                         <p className="text-gray-600  leading-relaxed">
-                                            Comprehensive data protection preventing unauthorized access, disclosure, modification, or destruction with advanced security protocols.
+                                            Capture, score, and track leads from all channels in one view. Never lose a prospect again. Every lead is organized, assigned, and followed up with precision.
                                         </p>
                                     </div>
                                 </div>
@@ -247,9 +249,9 @@ export default function Welcome({
                                         <span className="text-xl">💾</span>
                                     </div>
                                     <div>
-                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Automated Backup & Recovery</h3>
+                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Automations That Save Time</h3>
                                         <p className="text-gray-600  leading-relaxed">
-                                            Multi-geographical data backups ensure your health records remain safe and accessible, even in case of natural disasters or system failures.
+                                            Create workflows that handle routine tasks automatically. From follow-up messages to sales notifications, let the system work so your team can focus on closing deals.
                                         </p>
                                     </div>
                                 </div>
@@ -265,9 +267,9 @@ export default function Welcome({
                                         <span className="text-xl">❤️</span>
                                     </div>
                                     <div>
-                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Enhanced Patient Care</h3>
+                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Unified Communication Hub</h3>
                                         <p className="text-gray-600  leading-relaxed">
-                                            Track comparative examination values (BP, Weight, Height, LMP) and investigation results across every patient visit for better healthcare outcomes.
+                                            Access conversations, tickets, and sales updates in a single interface. Stay aligned, stay updated, and deliver a seamless customer experience.
                                         </p>
                                     </div>
                                 </div>
@@ -280,9 +282,9 @@ export default function Welcome({
                                         <span className="text-xl">📅</span>
                                     </div>
                                     <div>
-                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Smart Patient Follow-up</h3>
+                                        <h3 className="mb-3 text-2xl font-bold text-gray-900 ">Analytics & Reporting</h3>
                                         <p className="text-gray-600  leading-relaxed">
-                                            Automated appointment reminders and follow-up scheduling to ensure patients never miss their important healthcare appointments.
+                                            Make smarter decisions with clear reports on conversions, message performance, team efficiency, and growth trends.
                                         </p>
                                     </div>
                                 </div>
@@ -463,14 +465,14 @@ export default function Welcome({
                                     <div className="flex items-center gap-3">
                                         <span className="text-2xl">🛟</span>
                                         <div>
-                                            <div className="font-medium">24/7 Support</div>
-                                            <div className="text-sm">Always here to help</div>
+                                            <div className="font-medium">whatapp. at.  +919888885558 </div>
+                                            <div className="text-sm">we are deliver real time support.</div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <span className="text-2xl">📧</span>
                                         <div>
-                                            <div className="font-medium">support@crm.in</div>
+                                            <div className="font-medium">team@itcareindia.in</div>
                                             <div className="text-sm">Email support</div>
                                         </div>
                                     </div>

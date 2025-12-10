@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, Head, useForm } from '@inertiajs/react';
-import leads from '@/routes/leads';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Plus, X } from 'lucide-react';
@@ -23,6 +22,7 @@ interface Lead {
     email: string;
     reminder: string;
     quotation: string;
+    status?: string; // For edit mode only
 }
 
 interface Props {
@@ -36,25 +36,49 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
         ? lead.products 
         : [{ id: Date.now(), product: '', quantity: 0 }];
 
+    // Format date for reminder field
+    const formatDateForInput = (dateString: string) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+    };
+
     const { data, setData, post, put, processing, errors } = useForm({
         company_name: lead?.company_name || '',
         city: lead?.city || '',
         address: lead?.address || '',
-        lead_type: lead?.lead_type || 'domestic',
-        documentation: lead?.documentation || 'no',
+        lead_type: lead?.lead_type?.toLowerCase() || 'domestic', // Ensure lowercase
+        documentation: lead?.documentation?.toLowerCase() || 'no', // Ensure lowercase
         products: initialProducts,
         phone_no: lead?.phone_no || '',
         email: lead?.email || '',
-        reminder: lead?.reminder || '',
+        reminder: formatDateForInput(lead?.reminder || ''), // Format date properly
         quotation: lead?.quotation || '',
+        status: lead?.status || 'pending', // For edit mode only
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // console.log('Submitting data:', data); // Debug log
+        
         if (mode === 'create') {
-            post(leads.store().url);
+            post('/leads', {
+                onSuccess: () => {
+                    // console.log('Lead created successfully');
+                },
+                onError: (errors) => {
+                    console.error('Create errors:', errors);
+                }
+            });
         } else {
-            put(leads.edit(lead?.id || 0).url);
+            put(`/leads/${lead?.id}`, {
+                onSuccess: () => {
+                    // console.log('Lead updated successfully');
+                },
+                onError: (errors) => {
+                    console.error('Update errors:', errors);
+                }
+            });
         }
     };
 
@@ -88,11 +112,11 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Leads',
-            href: leads.index().url,
+            href: '/leads',
         },
         {
             title: mode === 'create' ? 'Create Lead' : 'Edit Lead',
-            href: mode === 'create' ? leads.create().url : leads.edit(lead?.id || 0).url,
+            href: mode === 'create' ? '/leads/create' : `/leads/${lead?.id}/edit`,
         },
     ];
 
@@ -102,15 +126,23 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
             <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-bold">
-                        {mode === 'create' ? 'Create New Lead' : 'Edit Lead'}
+                        {mode === 'create' ? 'Create New Lead' : `Edit Lead - ${lead?.company_name}`}
                     </h1>
                     <Link 
-                        href={leads.index()} 
+                        href="/leads"
                         className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
                     >
                         Back to Leads
                     </Link>
                 </div>
+
+                {/* Debug Info - Remove in production */}
+                {/* {mode === 'edit' && (
+                    <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 rounded">
+                        <p className="text-sm">Debug: Editing Lead ID: {lead?.id}</p>
+                        <p className="text-sm">Reminder value: {data.reminder}</p>
+                    </div>
+                )} */}
 
                 <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -152,12 +184,12 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
                                 <label className="block text-sm font-medium text-gray-700">
                                     Address:
                                 </label>
-                                <input
-                                    type="text"
+                                <textarea
                                     value={data.address}
                                     onChange={e => setData('address', e.target.value)}
                                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                                     required
+                                    rows={3}
                                 />
                                 {errors.address && (
                                     <div className="text-red-600 text-sm">{errors.address}</div>
@@ -190,6 +222,9 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
                                         International
                                     </label>
                                 </div>
+                                {errors.lead_type && (
+                                    <div className="text-red-600 text-sm">{errors.lead_type}</div>
+                                )}
                             </div>
                         </div>
 
@@ -205,6 +240,9 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
                                     onChange={e => setData('phone_no', e.target.value)}
                                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                                 />
+                                {errors.phone_no && (
+                                    <div className="text-red-600 text-sm">{errors.phone_no}</div>
+                                )}
                             </div>
 
                             <div>
@@ -232,6 +270,9 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
                                     onChange={e => setData('reminder', e.target.value)}
                                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                                 />
+                                {errors.reminder && (
+                                    <div className="text-red-600 text-sm">{errors.reminder}</div>
+                                )}
                             </div>
 
                             <div>
@@ -244,6 +285,9 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
                                     onChange={e => setData('quotation', e.target.value)}
                                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                                 />
+                                {errors.quotation && (
+                                    <div className="text-red-600 text-sm">{errors.quotation}</div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -265,7 +309,7 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
                         {data.products.map((product, index) => (
                             <div key={product.id} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 p-4 border border-gray-200 rounded-lg relative">
                                 {/* Remove button - only show if there's more than one product */}
-                                {data.products.length > 1 && index > 0 && (
+                                {data.products.length > 1 && (
                                     <button
                                         type="button"
                                         onClick={() => removeProductField(index)}
@@ -288,7 +332,6 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
                                         <option value="">Select Product</option>
                                         <option value="final-test-product">Final test product</option>
                                         <option value="new-medicine-1">New Medicine 1</option>
-                                        
                                     </select>
                                 </div>
 
@@ -302,6 +345,7 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
                                         onChange={(e) => updateProductField(index, 'quantity', parseInt(e.target.value) )}
                                         className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                                         placeholder="Enter quantity"
+                                        min="0"
                                     />
                                 </div>
                             </div>
@@ -335,9 +379,31 @@ export default function LeadCreateEdit({ mode, lead }: Props) {
                                 No
                             </label>
                         </div>
+                        {errors.documentation && (
+                            <div className="text-red-600 text-sm">{errors.documentation}</div>
+                        )}
                     </div>
 
-                    
+                    {/* Status Field - Only in Edit Mode */}
+                    {mode === 'edit' && (
+                        <div className="mt-6 border-t pt-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-4">
+                                Status:
+                            </label>
+                            <select
+                                value={data.status}
+                                onChange={e => setData('status', e.target.value)}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            >
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                            {errors.status && (
+                                <div className="text-red-600 text-sm">{errors.status}</div>
+                            )}
+                        </div>
+                    )}
 
                     <div className="mt-6">
                         <button

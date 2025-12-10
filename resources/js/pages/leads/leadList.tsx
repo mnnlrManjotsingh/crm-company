@@ -68,7 +68,7 @@ export default function LeadList({ leads }: Props) {
             router.delete(`/leads/${leadId}`);
         }
     };
-
+    
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Leads" />
@@ -87,8 +87,8 @@ export default function LeadList({ leads }: Props) {
                 </div>
 
                 {/* Search and Filters */}
-                <div className="mb-6 bg-white p-4 rounded-lg shadow border">
-                    <div className="flex flex-wrap gap-4 justify-between items-center">
+                {/* <div className="mb-6 bg-white p-4 rounded-lg shadow border"> */}
+                    <div className="flex flex-wrap gap-4 justify-between items-center mb-6  p-4" >
                         <div className="flex gap-2 flex-wrap">
                             <button 
                                 onClick={handleExportExcel}
@@ -119,7 +119,7 @@ export default function LeadList({ leads }: Props) {
                         </div>
                         
                         {/* Lead Source Buttons */}
-                        <div className="flex gap-2 flex-wrap">
+                        {/* <div className="flex gap-2 flex-wrap">
                             <button className="bg-gray-100 px-3 py-2 rounded text-sm hover:bg-gray-200 border border-gray-300 cursor-pointer">
                                 Pull Pharma Hopers Leads
                             </button>
@@ -132,9 +132,9 @@ export default function LeadList({ leads }: Props) {
                             <button className="bg-gray-100 px-3 py-2 rounded text-sm hover:bg-gray-200 border border-gray-300 cursor-pointer">
                                 Pull Trade India Leads
                             </button>
-                        </div>
+                        </div> */}
                     </div>
-                </div>
+                {/* </div> */}
 
                 {/* Leads Table */}
                 <div className="bg-white rounded-lg shadow overflow-hidden border">
@@ -244,12 +244,12 @@ export default function LeadList({ leads }: Props) {
                                             >
                                                 Edit
                                             </Link>
-                                            <Link 
+                                            {/* <Link 
                                                 href={`/leads/${lead.id}`} 
                                                 className="text-green-600 hover:text-green-900 hover:underline"
                                             >
                                                 View
-                                            </Link>
+                                            </Link> */}
                                             <button 
                                                 onClick={() => handleDeleteLead(lead.id)}
                                                 className="text-red-600 hover:text-red-900 hover:underline"

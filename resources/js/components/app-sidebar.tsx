@@ -15,6 +15,7 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import employees from '@/routes/employees';
 import leads from '@/routes/leads';
+import customers from '@/routes/customers';
 import { BookOpen, Folder, LayoutGrid,TrendingUp,        
     Target,            
     Trash2,            
@@ -37,7 +38,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Reports',
-        href: "#",
+        href: "/leadreports",
         icon: TrendingUp,
     },
     {
@@ -47,37 +48,37 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Deleted Lead',
-        href: "#",
+        href: '/leads/deleted/list',
         icon: Trash2,
     },
-    {
-        title: 'Client Listing',
-        href: "#",
-        icon: Briefcase,
-    },
+    // {
+    //     title: 'Client Listing',
+    //     href: "#",
+    //     icon: Briefcase,
+    // },
     {
         title: 'Customer',
-        href: "#",
+        href: customers.index(),
         icon: UserCheck,
     },
     {
         title: 'Order Listing',
-        href: "#",
+        href: "/orderlisting",
         icon: ClipboardList,
     },
     {
         title: 'Dispatch Listing',
-        href: "#",
+        href: "dispatchlisting",
         icon: PackageCheck,
     },
     {
         title: 'Lost Products',
-        href: "#",
+        href: "/lostproduct",
         icon: Ban,
     },
     {
         title: 'Lost Customer',
-        href: "#",
+        href: "/customers/deleted/list",
         icon: UserMinus,
     },
     {
@@ -85,16 +86,16 @@ const mainNavItems: NavItem[] = [
         href: employees.index(),
         icon: Users2,
     },
-    {
-        title: 'Manage Stocks',
-        href: "#",
-        icon: Warehouse,
-    },
-    {
-        title: 'Manage Roles',
-        href: "#",
-        icon: Key,
-    },
+    // {
+    //     title: 'Manage Stocks',
+    //     href: "#",
+    //     icon: Warehouse,
+    // },
+    // {
+    //     title: 'Manage Roles',
+    //     href: "#",
+    //     icon: Key,
+    // },
     
 ];
 

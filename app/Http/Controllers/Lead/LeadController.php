@@ -12,7 +12,7 @@ class LeadController extends Controller
     {
         $leads = Lead::latest()->paginate(10);
         
-        return Inertia::render('leads/leadList', [
+        return Inertia::render('leads/LeadList', [
             'leads' => $leads
         ]);
     }
@@ -76,7 +76,7 @@ class LeadController extends Controller
 
     public function create()
     {
-        return Inertia::render('leads/leadCreateEdit', [
+        return Inertia::render('leads/LeadCreateEdit', [
             'mode' => 'create'
         ]);
     }
@@ -120,7 +120,7 @@ class LeadController extends Controller
 
     public function edit(Lead $lead)
     {
-        return Inertia::render('leads/leadCreateEdit', [
+        return Inertia::render('leads/LeadCreateEdit', [
             'mode' => 'edit',
             'lead' => $lead
         ]);
@@ -141,7 +141,6 @@ class LeadController extends Controller
             'email' => 'nullable|email',
             'reminder' => 'nullable|date',
             'quotation' => 'nullable|string',
-            'remark' => 'nullable|string',
             'status' => 'required|in:pending,confirmed,rejected', // Changed to lowercase
         ]);
 
@@ -155,6 +154,35 @@ class LeadController extends Controller
 
         return redirect()->route('leads.index')
             ->with('success', 'Lead updated successfully.');
+    }
+
+     public function deletedLeads()
+    {
+        $deletedLeads = Lead::onlyTrashed()->latest()->paginate(10);
+        
+        return Inertia::render('leads/DeletedLeads', [
+            'deletedLeads' => $deletedLeads
+        ]);
+    }
+
+    // Restore deleted lead
+    public function restore($id)
+    {
+        $lead = Lead::withTrashed()->findOrFail($id);
+        $lead->restore();
+
+        return redirect()->route('leads.deleted')
+            ->with('success', 'Lead restored successfully.');
+    }
+
+    // Permanent delete
+    public function forceDelete($id)
+    {
+        $lead = Lead::withTrashed()->findOrFail($id);
+        $lead->forceDelete();
+
+        return redirect()->route('leads.deleted')
+            ->with('success', 'Lead permanently deleted.');
     }
 
     public function destroy(Lead $lead)

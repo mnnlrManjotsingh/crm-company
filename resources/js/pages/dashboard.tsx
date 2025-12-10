@@ -29,7 +29,7 @@ export default function Dashboard() {
                     <div className="rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Total Loads</p>
+                                <p className="text-sm font-medium text-muted-foreground">Total Leads</p>
                                 <div className="flex items-baseline gap-2">
                                     <h3 className="text-3xl font-bold" style={{ color: 'var(--sitecolor)' }}>1</h3>
                                     
@@ -44,7 +44,7 @@ export default function Dashboard() {
                     <div className="rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Converted Loads</p>
+                                <p className="text-sm font-medium text-muted-foreground">Converted Leads</p>
                                 <div className="flex items-baseline gap-2">
                                     <h3 className="text-3xl font-bold" style={{ color: 'var(--sitecolor)' }}>0</h3>
                                     
@@ -59,7 +59,7 @@ export default function Dashboard() {
                     <div className="rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Rejected Loads</p>
+                                <p className="text-sm font-medium text-muted-foreground">Rejected Leads</p>
                                 <div className="flex items-baseline gap-2">
                                     <h3 className="text-3xl font-bold" style={{ color: 'var(--sitecolor)' }}>0</h3>
                                     
