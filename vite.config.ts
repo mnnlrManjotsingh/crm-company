@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
     plugins: [
@@ -16,6 +17,7 @@ export default defineConfig({
                 plugins: ['babel-plugin-react-compiler'],
             },
         }),
+        
         tailwindcss(),
         wayfinder({
             formVariants: true,
@@ -24,4 +26,9 @@ export default defineConfig({
     esbuild: {
         jsx: 'automatic',
     },
+    resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./resources/js', import.meta.url)),
+    },
+  },
 });

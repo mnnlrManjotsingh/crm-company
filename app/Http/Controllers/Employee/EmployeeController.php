@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee\Employee;
+use App\Models\Lead;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -16,9 +17,13 @@ class EmployeeController extends Controller
     public function index()
     {
         $employees = Employee::paginate(10);
+        $unassignedLeads = Lead::whereNull('employee_id')
+        ->where('status', '!=', 'Rejected')
+        ->get();
         
         return Inertia::render('Employee/EmployeeList', [
-            'employees' => $employees
+            'employees' => $employees,
+            'unassignedLeads' => $unassignedLeads
         ]);
     }
 
@@ -181,5 +186,72 @@ class EmployeeController extends Controller
             return redirect()->route('employees.index')
                 ->with('error', 'Error deleting employee: ' . $e->getMessage());
         }
+    }
+
+
+    public function getUnassignedLeads()
+    {
+        $leads = Lead::whereNull('employee_id')
+            ->where('status', '!=', 'Rejected')
+            ->get();
+        
+        return response()->json($leads);
+    }
+
+    /**
+     * Assign leads to employee
+     */
+    public function assignLeads(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'lead_ids' => 'required|array',
+            'lead_ids.*' => 'exists:leads,id',
+        ]);
+
+        try {
+            // Check if any of the leads are already assigned
+            $alreadyAssigned = Lead::whereIn('id', $request->lead_ids)
+                ->whereNotNull('employee_id')
+                ->exists();
+
+            if ($alreadyAssigned) {
+                return response()->json([
+                    'error' => 'Some leads are already assigned to other employees.'
+                ], 400);
+            }
+
+            // Assign leads
+            Lead::whereIn('id', $request->lead_ids)
+                ->update(['employee_id' => $request->employee_id]);
+
+            return response()->json([
+                'message' => 'Leads assigned successfully.',
+                'success' => true
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error assigning leads: ' . $e->getMessage(),
+                'success' => false
+            ], 500);
+        }
+    }
+
+
+     /**
+     * Show employee report with assigned leads
+     */
+    public function report(Employee $employee)
+    {
+        $leads = Lead::where('employee_id', $employee->id)
+            ->with('employee') // Eager load employee relationship
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+        
+        return Inertia::render('Employee/EmployeeReport', [
+            'employee' => $employee,
+            'leads' => $leads
+        ]);
     }
 }

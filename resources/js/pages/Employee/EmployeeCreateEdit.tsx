@@ -311,20 +311,25 @@ const EmployeeCreateEdit: React.FC<Props> = ({ employee }) => {
                             <label className="block text-gray-700 text-sm font-bold mb-2">
                                 Role *
                             </label>
-                            <input
-                                type="text"
+
+                            <select
                                 value={data.role}
                                 onChange={(e) => setData('role', e.target.value)}
                                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                                     errors.role ? 'border-red-500' : 'border-gray-300'
                                 }`}
                                 required
-                                placeholder="e.g., Manager, Sales Executive"
-                            />
+                            >
+                                <option value="">-- Select Role --</option>
+                                <option value="Employee">Employee</option>
+                              
+                            </select>
+
                             {errors.role && (
                                 <p className="text-red-500 text-xs mt-1">{errors.role}</p>
                             )}
                         </div>
+
 
                         {/* Buttons */}
                         <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">

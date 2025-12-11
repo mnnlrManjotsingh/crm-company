@@ -11,12 +11,18 @@ use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Dispatch\DispatchController;
 use App\Http\Controllers\LostProduct\LostProductController;
 
+use App\Http\Controllers\Auth\EmployeeLoginController;
+
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
+
+ // Employee login (custom)
+    Route::get('/login', [EmployeeLoginController::class, 'showLoginForm'])->name('employee.login');
+    Route::post('/login', [EmployeeLoginController::class, 'login']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
@@ -30,6 +36,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
     Route::get('/employees/export/excel', [EmployeeController::class, 'exportExcel'])->name('employees.export.excel');
+    Route::get('/employees/unassigned-leads', [EmployeeController::class, 'getUnassignedLeads']);
+    Route::post('/employees/assign-leads', [EmployeeController::class, 'assignLeads']);
+    Route::get('/employees/{employee}/report', [EmployeeController::class, 'report'])->name('employees.report');
 
      Route::prefix('leads')->group(function () {
         // Main routes
@@ -54,23 +63,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('customers')->group(function () {
-    Route::get('/', [CustomerController::class, 'index'])->name('customers.index');
-    Route::get('/create', [CustomerController::class, 'create'])->name('customers.create');
-    Route::post('/', [CustomerController::class, 'store'])->name('customers.store');
-    Route::get('/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
-    Route::put('/{customer}', [CustomerController::class, 'update'])->name('customers.update');
-    Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
-    
-    // Status update route
-    Route::post('/{customer}/status', [CustomerController::class, 'updateStatus'])->name('customers.status');
-    
-    // Deleted customers routes
-    Route::get('/deleted/list', [CustomerController::class, 'deletedCustomers'])->name('customers.deleted');
-    Route::post('/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
-    Route::delete('/{id}/force-delete', [CustomerController::class, 'forceDelete'])->name('customers.force-delete');
-    
-    // Export route
-    Route::get('/export/excel', [CustomerController::class, 'exportExcel'])->name('customers.export.excel');
+        Route::get('/', [CustomerController::class, 'index'])->name('customers.index');
+        Route::get('/create', [CustomerController::class, 'create'])->name('customers.create');
+        Route::post('/', [CustomerController::class, 'store'])->name('customers.store');
+        Route::get('/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
+        Route::put('/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+        Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+        
+        // Status update route
+        Route::post('/{customer}/status', [CustomerController::class, 'updateStatus'])->name('customers.status');
+        
+        // Deleted customers routes
+        Route::get('/deleted/list', [CustomerController::class, 'deletedCustomers'])->name('customers.deleted');
+        Route::post('/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
+        Route::delete('/{id}/force-delete', [CustomerController::class, 'forceDelete'])->name('customers.force-delete');
+        
+        // Export route
+        Route::get('/export/excel', [CustomerController::class, 'exportExcel'])->name('customers.export.excel');
     });
 
 
