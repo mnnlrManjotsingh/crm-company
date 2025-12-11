@@ -21,8 +21,8 @@ Route::get('/', function () {
 })->name('home');
 
  // Employee login (custom)
-    Route::get('/login', [EmployeeLoginController::class, 'showLoginForm'])->name('employee.login');
-    Route::post('/login', [EmployeeLoginController::class, 'login']);
+    Route::get('employee/login', [EmployeeLoginController::class, 'showLoginForm'])->name('employee.login');
+    Route::post('employee/login', [EmployeeLoginController::class, 'login']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
