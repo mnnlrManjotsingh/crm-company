@@ -40,6 +40,8 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        
     ],
 
     /*
@@ -97,6 +99,8 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        
     ],
 
     /*

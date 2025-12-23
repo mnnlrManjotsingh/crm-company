@@ -54,6 +54,75 @@ export default function DeletedCustomer({ deletedCustomers }: Props) {
         }
     };
 
+    const handlePageChange = (page: number) => {
+        if (page < 1 || page > deletedCustomers.last_page) return;
+        
+        router.get('/customers/deleted/list', { page }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    // Generate page numbers with ellipsis
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisiblePages = 5;
+        const currentPage = deletedCustomers.current_page;
+        const lastPage = deletedCustomers.last_page;
+        
+        if (lastPage <= maxVisiblePages) {
+            // Show all pages if total pages is less than or equal to maxVisiblePages
+            for (let i = 1; i <= lastPage; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Always show first page
+            pages.push(1);
+            
+            // Calculate start and end of page range
+            let start = Math.max(2, currentPage - 1);
+            let end = Math.min(lastPage - 1, currentPage + 1);
+            
+            // Adjust if we're near the beginning
+            if (currentPage <= 3) {
+                end = Math.min(maxVisiblePages - 1, lastPage - 1);
+            }
+            
+            // Adjust if we're near the end
+            if (currentPage >= lastPage - 2) {
+                start = Math.max(2, lastPage - maxVisiblePages + 2);
+            }
+            
+            // Add ellipsis after first page if needed
+            if (start > 2) {
+                pages.push('...');
+            }
+            
+            // Add middle pages
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            
+            // Add ellipsis before last page if needed
+            if (end < lastPage - 1) {
+                pages.push('...');
+            }
+            
+            // Always show last page
+            if (lastPage > 1) {
+                pages.push(lastPage);
+            }
+        }
+        
+        return pages;
+    };
+
+    // Calculate showing from/to
+    const showingFrom = deletedCustomers.from || ((deletedCustomers.current_page - 1) * 10) + 1;
+    const showingTo = deletedCustomers.to || Math.min(deletedCustomers.current_page * 10, deletedCustomers.total);
+    const pageNumbers = getPageNumbers();
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Deleted Customers" />
@@ -103,15 +172,15 @@ export default function DeletedCustomer({ deletedCustomers }: Props) {
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
                                     Quotation
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
+                                {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
                                     Status
-                                </th>
+                                </th> */}
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
                                     Deleted At
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
+                                {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
                                     Actions
-                                </th>
+                                </th> */}
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -142,18 +211,18 @@ export default function DeletedCustomer({ deletedCustomers }: Props) {
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border">
                                             {customer.quotation}
                                         </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border">
+                                        {/* <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border">
                                             <span className={`px-2 py-1 rounded text-xs ${
                                                 customer.status === 'active' ? 'bg-green-100 text-green-800' :
                                                 'bg-red-100 text-red-800'
                                             }`}>
                                                 {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
                                             </span>
-                                        </td>
+                                        </td> */}
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border">
                                             {new Date(customer.deleted_at).toLocaleDateString()} at {new Date(customer.deleted_at).toLocaleTimeString()}
                                         </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium space-x-2 border">
+                                        {/* <td className="px-4 py-3 whitespace-nowrap text-sm font-medium space-x-2 border">
                                             <button 
                                                 onClick={() => handleRestoreCustomer(customer.id)}
                                                 className="text-green-600 hover:text-green-900 hover:underline"
@@ -166,7 +235,7 @@ export default function DeletedCustomer({ deletedCustomers }: Props) {
                                             >
                                                 Delete Permanently
                                             </button>
-                                        </td>
+                                        </td> */}
                                     </tr>
                                 ))
                             ) : (
@@ -197,37 +266,66 @@ export default function DeletedCustomer({ deletedCustomers }: Props) {
                     <div className="text-sm text-gray-600">
                         Showing {deletedCustomers.data?.length || 0} of {deletedCustomers.total || 0} deleted customers
                     </div>
-                    
-                    {/* Simple Pagination */}
+
                     {deletedCustomers.last_page > 1 && (
-                        <div className="flex space-x-2">
-                            <button 
-                                onClick={() => router.get(`/customers/deleted/list?page=${deletedCustomers.current_page - 1}`)}
-                                disabled={deletedCustomers.current_page === 1}
-                                className={`px-3 py-1 rounded border text-sm ${
-                                    deletedCustomers.current_page === 1 
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                                        : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
-                                }`}
-                            >
-                                Previous
-                            </button>
-                            <span className="px-3 py-1 text-sm text-gray-700">
-                                Page {deletedCustomers.current_page} of {deletedCustomers.last_page}
-                            </span>
-                            <button 
-                                onClick={() => router.get(`/customers/deleted/list?page=${deletedCustomers.current_page + 1}`)}
-                                disabled={deletedCustomers.current_page === deletedCustomers.last_page}
-                                className={`px-3 py-1 rounded border text-sm ${
-                                    deletedCustomers.current_page === deletedCustomers.last_page 
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                                        : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
-                                }`}
-                            >
-                                Next
-                            </button>
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                            <div className="flex items-center space-x-1">
+                                <button 
+                                    onClick={() => handlePageChange(deletedCustomers.current_page - 1)}
+                                    disabled={deletedCustomers.current_page === 1}
+                                    className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
+                                        deletedCustomers.current_page === 1
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300'
+                                            : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+                                    }`}
+                                >
+                                    Previous
+                                </button>
+                                
+                                {pageNumbers.map((page, index) => {
+                                    if (page === '...') {
+                                        return (
+                                            <span key={`ellipsis-${index}`} className="px-3 py-2 text-sm text-gray-500">
+                                                ...
+                                            </span>
+                                        );
+                                    }
+                                    
+                                    return (
+                                        <button
+                                            key={page}
+                                            onClick={() => handlePageChange(page as number)}
+                                            className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
+                                                deletedCustomers.current_page === page
+                                                    ? 'bg-blue-600 text-white border-blue-600'
+                                                    : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+                                            }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    );
+                                })}
+                                
+                                <button 
+                                    onClick={() => handlePageChange(deletedCustomers.current_page + 1)}
+                                    disabled={deletedCustomers.current_page === deletedCustomers.last_page}
+                                    className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
+                                        deletedCustomers.current_page === deletedCustomers.last_page
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300'
+                                            : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+                                    }`}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                            
+                            <div className="text-sm text-gray-600">
+                                Page <span className="font-medium">{deletedCustomers.current_page}</span> of <span className="font-medium">{deletedCustomers.last_page}</span>
+                            </div>
                         </div>
                     )}
+                    
+                    
                 </div>
             </div>
         </AppLayout>

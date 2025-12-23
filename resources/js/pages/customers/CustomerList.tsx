@@ -66,6 +66,77 @@ export default function CustomerList({ customers }: Props) {
             router.delete(`/customers/${customerId}`);
         }
     };
+
+
+    // Handle page navigation
+    const handlePageChange = (page: number) => {
+        if (page < 1 || page > customers.last_page) return;
+        
+        router.get('/customers', { page }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    // Generate page numbers with ellipsis
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisiblePages = 5;
+        const currentPage = customers.current_page;
+        const lastPage = customers.last_page;
+        
+        if (lastPage <= maxVisiblePages) {
+            // Show all pages if total pages is less than or equal to maxVisiblePages
+            for (let i = 1; i <= lastPage; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Always show first page
+            pages.push(1);
+            
+            // Calculate start and end of page range
+            let start = Math.max(2, currentPage - 1);
+            let end = Math.min(lastPage - 1, currentPage + 1);
+            
+            // Adjust if we're near the beginning
+            if (currentPage <= 3) {
+                end = Math.min(maxVisiblePages - 1, lastPage - 1);
+            }
+            
+            // Adjust if we're near the end
+            if (currentPage >= lastPage - 2) {
+                start = Math.max(2, lastPage - maxVisiblePages + 2);
+            }
+            
+            // Add ellipsis after first page if needed
+            if (start > 2) {
+                pages.push('...');
+            }
+            
+            // Add middle pages
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            
+            // Add ellipsis before last page if needed
+            if (end < lastPage - 1) {
+                pages.push('...');
+            }
+            
+            // Always show last page
+            if (lastPage > 1) {
+                pages.push(lastPage);
+            }
+        }
+        
+        return pages;
+    };
+
+    // Calculate showing from/to
+    const showingFrom = customers.from || ((customers.current_page - 1) * 10) + 1;
+    const showingTo = customers.to || Math.min(customers.current_page * 10, customers.total);
+    const pageNumbers = getPageNumbers();
     
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -155,9 +226,9 @@ export default function CustomerList({ customers }: Props) {
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
                                     Quotation
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
+                                {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
                                     Status
-                                </th>
+                                </th> */}
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border">
                                     Actions
                                 </th>
@@ -191,7 +262,7 @@ export default function CustomerList({ customers }: Props) {
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border">
                                             {customer.quotation}
                                         </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border">
+                                        {/* <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border">
                                             <select 
                                                 value={selectedStatus[customer.id] || customer.status}
                                                 onChange={(e) => handleStatusChange(customer.id, e.target.value)}
@@ -204,7 +275,7 @@ export default function CustomerList({ customers }: Props) {
                                                 <option value="active" className="bg-green-100 text-green-800">Active</option>
                                                 <option value="inactive" className="bg-red-100 text-red-800">Inactive</option>
                                             </select>
-                                        </td>
+                                        </td> */}
                                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium space-x-2 border">
                                             <Link 
                                                 href={`/customers/${customer.id}/edit`} 
@@ -251,23 +322,50 @@ export default function CustomerList({ customers }: Props) {
                     </div>
                     
                     {/* Simple Pagination */}
-                    {customers.last_page > 1 && (
-                        <div className="flex space-x-2">
+                     {customers.last_page > 1 && (
+                        <div className="flex items-center space-x-1">
                             <button 
+                                onClick={() => handlePageChange(customers.current_page - 1)}
                                 disabled={customers.current_page === 1}
-                                className={`px-3 py-1 rounded border text-sm ${
-                                    customers.current_page === 1 
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
+                                    customers.current_page === 1
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300'
                                         : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
                                 }`}
                             >
-                                Previous
+                               Previous
                             </button>
+                            
+                            {pageNumbers.map((page, index) => {
+                                if (page === '...') {
+                                    return (
+                                        <span key={`ellipsis-${index}`} className="px-3 py-2 text-sm text-gray-500">
+                                            ...
+                                        </span>
+                                    );
+                                }
+                                
+                                return (
+                                    <button
+                                        key={page}
+                                        onClick={() => handlePageChange(page as number)}
+                                        className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
+                                            customers.current_page === page
+                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+                                        }`}
+                                    >
+                                        {page}
+                                    </button>
+                                );
+                            })}
+                            
                             <button 
+                                onClick={() => handlePageChange(customers.current_page + 1)}
                                 disabled={customers.current_page === customers.last_page}
-                                className={`px-3 py-1 rounded border text-sm ${
-                                    customers.current_page === customers.last_page 
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
+                                    customers.current_page === customers.last_page
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300'
                                         : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
                                 }`}
                             >

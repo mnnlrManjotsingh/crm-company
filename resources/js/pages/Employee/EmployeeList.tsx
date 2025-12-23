@@ -1,6 +1,6 @@
 // resources/js/Pages/Employee/EmployeeList.tsx
 import React, { useState, useEffect } from 'react';
-import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Head, Link, usePage, router,useForm  } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import employees from '@/routes/employees';
 import { type BreadcrumbItem } from '@/types';
@@ -65,6 +65,11 @@ const EmployeeList: React.FC<Props> = ({ employees: employeeData, unassignedLead
     const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
     const [isAssigning, setIsAssigning] = useState(false);
 
+    const { post, processing, reset } = useForm({
+        employee_id: null as number | null,
+        lead_ids: [] as number[],
+    });
+
     // Helper function to get CSRF token
     const getCsrfToken = () => {
         return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -122,46 +127,55 @@ const EmployeeList: React.FC<Props> = ({ employees: employeeData, unassignedLead
         );
     };
 
-    const handleAssignLeads = async () => {
-        if (!selectedEmployee || selectedLeads.length === 0) return;
-
-        setIsAssigning(true);
-        try {
-            const csrfToken = getCsrfToken();
-            if (!csrfToken) {
-                throw new Error('CSRF token not found');
-            }
-
-            const response = await fetch('/employees/assign-leads', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({
-                    employee_id: selectedEmployee.id,
-                    lead_ids: selectedLeads,
-                }),
-            });
-
-            const data = await response.json();
+    const handleAssignLeads = () => {
+    if (!selectedEmployee || selectedLeads.length === 0) return;
+    
+    
+    // Use Inertia's post method - it automatically handles CSRF
+    router.post('/employees/assign-leads', {
+        employee_id: selectedEmployee.id,
+        lead_ids: selectedLeads,
+    }, {
+        preserveScroll: true,
+        preserveState: true, // Change to true to preserve modal state
+        onSuccess: (page) => {
             
-            if (response.ok) {
-                alert(data.message || 'Leads assigned successfully!');
-                closeAssignModal();
-                router.reload();
-            } else {
-                alert(data.error || 'Error assigning leads');
+            // Check for flash messages in the response
+            const flash = page.props.flash;
+            
+            if (flash?.success) {
+                alert('✅ ' + flash.success);
+            } else if (flash?.error) {
+                alert('❌ ' + flash.error);
+                return; // Don't close modal on error
             }
-        } catch (error) {
-            console.error('Error assigning leads:', error);
-            alert('Error assigning leads. Please try again.');
-        } finally {
-            setIsAssigning(false);
-        }
-    };
+            
+            // Close modal
+            closeAssignModal();
+            
+            // Clear selected leads
+            setSelectedLeads([]);
+            
+            // Refresh unassigned leads
+            fetchUnassignedLeads();
+            
+            // Force reload the page to show updated data
+            router.reload({ preserveScroll: true });
+        },
+        onError: (errors) => {
+            console.error('❌ Error assigning leads:', errors);
+            
+            // Show specific error message
+            if (errors.message) {
+                alert('❌ Error: ' + errors.message);
+            } else if (errors.employee_id || errors.lead_ids) {
+                alert('❌ Validation error: Please check your inputs');
+            } else {
+                alert('❌ Unknown error occurred');
+            }
+        },
+    });
+};
 
     const handleSelectAll = () => {
         if (selectedLeads.length === unassignedLeads.length) {
@@ -171,12 +185,73 @@ const EmployeeList: React.FC<Props> = ({ employees: employeeData, unassignedLead
         }
     };
 
+     const handlePageChange = (page: number) => {
+        if (page < 1 || page > employeeData.last_page) return;
+        
+        router.get('/employees', { page }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
     // Fix NaN calculations
     const currentPage = employeeData.current_page || 1;
     const total = employeeData.total || 0;
     const lastPage = employeeData.last_page || 1;
     const showingFrom = ((currentPage - 1) * 10) + 1;
     const showingTo = Math.min(currentPage * 10, total);
+
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisiblePages = 5;
+        
+        if (lastPage <= maxVisiblePages) {
+            // Show all pages if total pages is less than or equal to maxVisiblePages
+            for (let i = 1; i <= lastPage; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Always show first page
+            pages.push(1);
+            
+            // Calculate start and end of page range
+            let start = Math.max(2, currentPage - 1);
+            let end = Math.min(lastPage - 1, currentPage + 1);
+            
+            // Adjust if we're near the beginning
+            if (currentPage <= 3) {
+                end = Math.min(maxVisiblePages - 1, lastPage - 1);
+            }
+            
+            // Adjust if we're near the end
+            if (currentPage >= lastPage - 2) {
+                start = Math.max(2, lastPage - maxVisiblePages + 2);
+            }
+            
+            // Add ellipsis after first page if needed
+            if (start > 2) {
+                pages.push('...');
+            }
+            
+            // Add middle pages
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            
+            // Add ellipsis before last page if needed
+            if (end < lastPage - 1) {
+                pages.push('...');
+            }
+            
+            // Always show last page
+            if (lastPage > 1) {
+                pages.push(lastPage);
+            }
+        }
+        
+        return pages;
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -323,27 +398,39 @@ const EmployeeList: React.FC<Props> = ({ employees: employeeData, unassignedLead
                     
                     <div className="flex items-center space-x-1">
                         <button 
+                            onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
                             className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             Previous
                         </button>
                         
-                        {[...Array(lastPage)].map((_, index) => (
-                            <button
-                                key={index + 1}
-                                onClick={() => {/* Add page change logic */}}
-                                className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
-                                    currentPage === index + 1 
-                                        ? 'bg-blue-600 text-white border-blue-600' 
-                                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                                }`}
-                            >
-                                {index + 1}
-                            </button>
-                        ))}
+                        {getPageNumbers().map((page, index) => {
+                            if (page === '...') {
+                                return (
+                                    <span key={`ellipsis-${index}`} className="px-3 py-2 text-sm text-gray-500">
+                                        ...
+                                    </span>
+                                );
+                            }
+                        
+                        return (
+                                <button
+                                    key={page}
+                                    onClick={() => handlePageChange(page as number)}
+                                    className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
+                                        currentPage === page 
+                                            ? 'bg-blue-600 text-white border-blue-600' 
+                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {page}
+                                </button>
+                            );
+                        })}
                         
                         <button 
+                            onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === lastPage}
                             className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
@@ -485,27 +572,27 @@ const EmployeeList: React.FC<Props> = ({ employees: employeeData, unassignedLead
                                     Cancel
                                 </button>
                                 <button
-                                    type="button"
-                                    onClick={handleAssignLeads}
-                                    disabled={selectedLeads.length === 0 || isAssigning}
-                                    className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                                        selectedLeads.length === 0 || isAssigning
-                                            ? 'bg-blue-400 cursor-not-allowed'
-                                            : 'bg-blue-600 hover:bg-blue-700'
-                                    }`}
-                                >
-                                    {isAssigning ? (
-                                        <span className="flex items-center">
-                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            Assigning...
-                                        </span>
-                                    ) : (
-                                        `Assign ${selectedLeads.length} Lead${selectedLeads.length !== 1 ? 's' : ''}`
-                                    )}
-                                </button>
+        type="button"
+        onClick={handleAssignLeads}
+        disabled={selectedLeads.length === 0 || processing}
+        className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+            selectedLeads.length === 0 || processing
+                ? 'bg-blue-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+        }`}
+    >
+        {processing ? (
+            <span className="flex items-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Assigning...
+            </span>
+        ) : (
+            `Assign ${selectedLeads.length} Lead${selectedLeads.length !== 1 ? 's' : ''}`
+        )}
+    </button>
                             </div>
                         </div>
                     </div>

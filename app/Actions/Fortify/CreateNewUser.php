@@ -28,12 +28,25 @@ class CreateNewUser implements CreatesNewUsers
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
+            'role' => ['required', 'in:admin,employee'], 
+            'mobile' => ['required_if:role,employee', 'string', 'max:20'], 
+            'gender' => ['required_if:role,employee', 'in:male,female,other'],
         ])->validate();
 
-        return User::create([
+         $userData = [
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
-        ]);
+            'role' => $input['role'],
+        ];
+
+        // Add optional fields if provided
+        if (isset($input['mobile'])) $userData['mobile'] = $input['mobile'];
+        if (isset($input['gender'])) $userData['gender'] = $input['gender'];
+        if (isset($input['address'])) $userData['address'] = $input['address'];
+        if (isset($input['city'])) $userData['city'] = $input['city'];
+        if (isset($input['about'])) $userData['about'] = $input['about'];
+
+        return User::create($userData);
     }
 }

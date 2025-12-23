@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('quotation')->nullable();
             $table->enum('status', ['pending', 'confirmed', 'rejected'])->default('pending');
             $table->string('lead_source')->nullable(); 
-            $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('set null');   
+            $table->foreignId('employee_id')->nullable()->constrained('users')->onDelete('set null');   
             $table->timestamps();
         });
     }

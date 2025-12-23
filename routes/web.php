@@ -11,8 +11,7 @@ use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Dispatch\DispatchController;
 use App\Http\Controllers\LostProduct\LostProductController;
 
-use App\Http\Controllers\Auth\EmployeeLoginController;
-
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -20,15 +19,14 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
- // Employee login (custom)
-    Route::get('employee/login', [EmployeeLoginController::class, 'showLoginForm'])->name('employee.login');
-    Route::post('employee/login', [EmployeeLoginController::class, 'login']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
-   // Employee Routes - Make sure these use GET method for browser access
+
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
     Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
     Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
@@ -87,6 +85,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/orderlisting', [OrderController::class, 'index'])->name('reports.index');
     Route::get('/dispatchlisting', [DispatchController::class, 'index'])->name('reports.index');
     Route::get('/lostproduct', [LostProductController::class, 'index'])->name('reports.index');
+
+    });
+
+
+    Route::middleware(['auth', 'role:employee'])->group(function () {
+
+    Route::get('/viewleads', [EmployeeController::class, 'assignedLeads'])->name('employees.leads');
+    Route::post('/leads/{lead}/update-status', [EmployeeController::class, 'updateLeadStatus'])
+        ->name('employee.leads.update-status');
+
+    });
+
+    Route::patch('/leads/{lead}/update-remark', [EmployeeController::class, 'updateRemark'])
+        ->name('employee.leads.update-remark');
+
 });
 
 require __DIR__.'/settings.php';

@@ -529,7 +529,7 @@ export default function Welcome({
                         {/* Copyright */}
                         <div className="mt-12 border-t border-gray-700 pt-8 text-center">
                             <p className="text-gray-400">
-                                Copyright ©2023, CRM LLC., All Rights Reserved.
+                                Copyright ©2025, CRM LLC., All Rights Reserved.
                             </p>
                         </div>
                     </div>

@@ -52,11 +52,11 @@ const EmployeeCreateEdit: React.FC<Props> = ({ employee }) => {
         email: employee?.email || '',
         mobile: employee?.mobile || '',
         password: '',
-        gender: employee?.gender || 'female',
+        gender: employee?.gender || 'male',
         address: employee?.address || '',
         city: employee?.city || '',
         about: employee?.about || '',
-        role: employee?.role || '',
+        role: employee?.role || 'employee',
     });
 
     const handleSubmit = (e: React.FormEvent) => {

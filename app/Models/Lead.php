@@ -3,7 +3,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Employee\Employee;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo; 
 
 class Lead extends Model
@@ -23,6 +23,7 @@ class Lead extends Model
         'quotation',
         'status',
         'lead_source',
+        'remark',
         'employee_id'
     ];
 
@@ -33,7 +34,8 @@ class Lead extends Model
 
     public function employee(): BelongsTo
     {
-        return $this->belongsTo(Employee::class);
+        // If foreign key is 'employee_id' (default), this is correct
+        return $this->belongsTo(User::class, 'employee_id');
     }
 
 }

@@ -1,4 +1,3 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -10,30 +9,32 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { Link, usePage } from '@inertiajs/react';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import employees from '@/routes/employees';
-import leads from '@/routes/leads';
-import customers from '@/routes/customers';
-import { BookOpen, Folder, LayoutGrid,TrendingUp,        
+import { 
+    LayoutGrid,
+    TrendingUp,        
     Target,            
     Trash2,            
-    Briefcase,         
     UserCheck,         
     ClipboardList,     
     PackageCheck,      
     Ban,               
     UserMinus,         
     Users2,            
-    Warehouse,         
-    Key,      } from 'lucide-react';
+    BarChart3,
+    User,
+    Settings,
+    Home,
+    ListChecks
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+// Admin navigation items (for web guard users)
+const adminNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: '/dashboard',
         icon: LayoutGrid,
     },
     {
@@ -43,7 +44,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Lead',
-        href: leads.index(),
+        href: '/leads',
         icon: Target,
     },
     {
@@ -51,14 +52,9 @@ const mainNavItems: NavItem[] = [
         href: '/leads/deleted/list',
         icon: Trash2,
     },
-    // {
-    //     title: 'Client Listing',
-    //     href: "#",
-    //     icon: Briefcase,
-    // },
     {
         title: 'Customer',
-        href: customers.index(),
+        href: '/customers',
         icon: UserCheck,
     },
     {
@@ -68,7 +64,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Dispatch Listing',
-        href: "dispatchlisting",
+        href: "/dispatchlisting",
         icon: PackageCheck,
     },
     {
@@ -83,44 +79,63 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Employees',
-        href: employees.index(),
+        href: "/employees",
         icon: Users2,
     },
-    // {
-    //     title: 'Manage Stocks',
-    //     href: "#",
-    //     icon: Warehouse,
-    // },
-    // {
-    //     title: 'Manage Roles',
-    //     href: "#",
-    //     icon: Key,
-    // },
-    
 ];
 
-// const footerNavItems: NavItem[] = [
-//     {
-//         title: 'Repository',
-//         href: 'https://github.com/laravel/react-starter-kit',
-//         icon: Folder,
-//     },
-//     {
-//         title: 'Documentation',
-//         href: 'https://laravel.com/docs/starter-kits#react',
-//         icon: BookOpen,
-//     },
-// ];
+// Employee navigation items (for employee guard users)
+const employeeNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/dashboard',
+        icon: Home,
+    },
+    {
+        title: ' Leads',
+        href: '/viewleads',
+        icon: Target,
+    },
+   
+];
 
 export function AppSidebar() {
+      const { auth } = usePage().props as any;
+    
+    // Check if user exists and has a role
+    const user = auth?.user;
+    const userRole = user?.role; // 'admin', 'employee', or undefined
+    
+    // Select appropriate navigation items
+    let navItems: NavItem[] = [];
+    let portalTitle = 'Portal';
+    
+    if (!user) {
+        
+        portalTitle = 'Welcome';
+    } else if (userRole === 'employee') {
+        // Employee is logged in
+        navItems = employeeNavItems;
+        portalTitle = 'Employee Portal';
+    } else if (userRole === 'admin') {
+        // Admin is logged in
+        navItems = adminNavItems;
+        portalTitle = 'Admin Portal';
+    } else {
+        // Fallback - should not happen if roles are set correctly
+        navItems = [];
+        portalTitle = 'Portal';
+    }
+
     return (
-        <Sidebar collapsible="icon" variant="inset"   >
+        <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                            <Link href="/dashboard" prefetch>
                                 <AppLogo />
+                              
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -128,11 +143,10 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>
-                {/* <NavFooter items={footerNavItems} className="mt-auto" /> */}
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
