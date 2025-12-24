@@ -52,9 +52,14 @@ const adminNavItems: NavItem[] = [
         href: '/leads/deleted/list',
         icon: Trash2,
     },
+    // {
+    //     title: 'Customer',
+    //     href: '/customers',
+    //     icon: UserCheck,
+    // },
     {
         title: 'Customer',
-        href: '/customers',
+        href: '/employee/all-assigned-leads',
         icon: UserCheck,
     },
     {

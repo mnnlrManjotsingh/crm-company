@@ -359,53 +359,113 @@ const AssignedLeads: React.FC<Props> = ({ employee, leads }) => {
                 </div>
 
                 {/* Pagination */}
-                {leads.data && leads.data.length > 0 && (
-                    <div className="mt-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-                        <div className="text-sm text-gray-700">
-                            Showing <span className="font-medium">{leads.from}</span> to <span className="font-medium">{leads.to}</span> of <span className="font-medium">{leads.total}</span> results
-                        </div>
-                        
-                        <div className="flex items-center space-x-1">
-                            <Link
-                                href={`/viewleads?page=${leads.current_page - 1}`}
-                                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                    leads.current_page === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                                }`}
-                                onClick={(e) => leads.current_page === 1 && e.preventDefault()}
-                            >
-                                Previous
-                            </Link>
-                            
-                            {[...Array(leads.last_page)].map((_, index) => (
-                                <Link
-                                    key={index + 1}
-                                    href={`/viewleads?page=${index + 1}`}
-                                    className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
-                                        leads.current_page === index + 1
-                                            ? 'bg-blue-600 text-white border-blue-600'
-                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    {index + 1}
-                                </Link>
-                            ))}
-                            
-                            <Link
-                                href={`/viewleads?page=${leads.current_page + 1}`}
-                                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                    leads.current_page === leads.last_page
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                                }`}
-                                onClick={(e) => leads.current_page === leads.last_page && e.preventDefault()}
-                            >
-                                Next
-                            </Link>
-                        </div>
-                    </div>
-                )}
+                {/* Pagination */}
+{leads.data && leads.data.length > 0 && (
+    <div className="mt-8 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+        <div className="text-sm text-gray-700">
+            Showing <span className="font-medium">{leads.from}</span> to <span className="font-medium">{leads.to}</span> of <span className="font-medium">{leads.total}</span> results
+        </div>
+        
+        <div className="flex items-center space-x-1">
+            {/* Previous Button */}
+            <Link
+                href={leads.current_page > 1 ? `/viewleads?page=${leads.current_page - 1}` : '#'}
+                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    leads.current_page === 1
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+                preserveScroll
+                preserveState
+                replace
+            >
+                Previous
+            </Link>
+            
+            {/* Page Numbers */}
+            {(() => {
+                const pages = [];
+                const maxVisiblePages = 5;
+                const currentPage = leads.current_page;
+                const lastPage = leads.last_page;
+                
+                if (lastPage <= maxVisiblePages) {
+                    // Show all pages
+                    for (let i = 1; i <= lastPage; i++) {
+                        pages.push(i);
+                    }
+                } else {
+                    // Show first 3, current, last 3, or similar
+                    pages.push(1);
+                    
+                    if (currentPage > 3) {
+                        pages.push('...');
+                    }
+                    
+                    // Show pages around current
+                    const start = Math.max(2, currentPage - 1);
+                    const end = Math.min(lastPage - 1, currentPage + 1);
+                    
+                    for (let i = start; i <= end; i++) {
+                        pages.push(i);
+                    }
+                    
+                    if (currentPage < lastPage - 2) {
+                        pages.push('...');
+                    }
+                    
+                    if (lastPage > 1) {
+                        pages.push(lastPage);
+                    }
+                }
+                
+                return pages.map((page, index) => {
+                    if (page === '...') {
+                        return (
+                            <span key={`ellipsis-${index}`} className="px-3 py-2 text-sm text-gray-500">
+                                ...
+                            </span>
+                        );
+                    }
+                    
+                    const isCurrent = page === leads.current_page;
+                    
+                    return (
+                        <Link
+                            key={page}
+                            href={`/viewleads?page=${page}`}
+                            className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
+                                isCurrent
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            }`}
+                            preserveScroll
+                            preserveState
+                            replace
+                        >
+                            {page}
+                        </Link>
+                    );
+                });
+            })()}
+            
+            {/* Next Button */}
+            <Link
+                href={leads.current_page < leads.last_page ? `/viewleads?page=${leads.current_page + 1}` : '#'}
+                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    leads.current_page === leads.last_page
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+                preserveScroll
+                preserveState
+                replace
+            >
+                Next
+            </Link>
+        </div>
+    </div>
+)}
             </div>
         </AppLayout>
     );

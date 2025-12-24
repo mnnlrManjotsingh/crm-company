@@ -37,6 +37,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/employees/unassigned-leads', [EmployeeController::class, 'getUnassignedLeads']);
     Route::post('/employees/assign-leads', [EmployeeController::class, 'assignLeads']);
     Route::get('/employees/{employee}/report', [EmployeeController::class, 'report'])->name('employees.report');
+     Route::get('/employee/all-assigned-leads', [EmployeeController::class, 'allAssignedLeads'])
+        ->name('employee.all.assigned.leads');
 
      Route::prefix('leads')->group(function () {
         // Main routes

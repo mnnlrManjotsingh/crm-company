@@ -411,4 +411,49 @@ class EmployeeController extends Controller
             return back()->with('error', 'Error updating remark: ' . $e->getMessage());
         }
     }
+
+
+
+    public function allAssignedLeads(Request $request)
+    {
+        $query = Lead::whereNotNull('employee_id')
+                    ->with('employee');
+        
+        // Apply filters
+        if ($request->has('employee_id') && $request->employee_id) {
+            $query->where('employee_id', $request->employee_id);
+        }
+        
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->has('search') && $request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%')
+                ->orWhere('phone', 'like', '%' . $request->search . '%')
+                ->orWhere('company_name', 'like', '%' . $request->search . '%');
+            });
+        }
+        
+        $leads = $query->latest()->paginate(10)->withQueryString();
+        
+        $employees = User::where('role', 'employee')
+                        ->orderBy('name')
+                        ->get(['id', 'name', 'email']);
+        
+        return inertia('Employee/AllAssignedLeads', [
+            'leads' => $leads,
+            'employees' => $employees,
+            'filters' => $request->only(['employee_id', 'status', 'search']),
+            'statistics' => [
+                'total_assigned' => Lead::whereNotNull('employee_id')->count(),
+                'total_employees' => User::where('role', 'employee')->count(),
+                'pending_leads' => Lead::whereNotNull('employee_id')->where('status', 'pending')->count(),
+                'confirmed_leads' => Lead::whereNotNull('employee_id')->where('status', 'confirmed')->count(),
+                'converted_leads' => Lead::whereNotNull('employee_id')->where('is_converted', true)->count(),
+            ]
+        ]);
+    }
 }

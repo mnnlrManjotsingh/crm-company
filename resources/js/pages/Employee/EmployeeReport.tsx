@@ -274,7 +274,7 @@ const EmployeeReport: React.FC<Props> = ({ employee, leads }) => {
                                         Status
                                     </th> */}
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Client Added
+                                        Assigned Date
                                     </th>
                                 </tr>
                             </thead>
@@ -352,53 +352,125 @@ const EmployeeReport: React.FC<Props> = ({ employee, leads }) => {
                 </div>
 
                 {/* Pagination */}
-                {leads.data && leads.data.length > 0 && (
-                    <div className="mt-6 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-                        <div className="text-sm text-gray-700">
-                            Showing <span className="font-medium">{leads.from}</span> to <span className="font-medium">{leads.to}</span> of <span className="font-medium">{leads.total}</span> results
-                        </div>
-                        
-                        <div className="flex items-center space-x-1">
-                            <Link
-                                href={employees.report(employee.id, { page: leads.current_page - 1 })}
-                                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                    leads.current_page === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                                }`}
-                                onClick={(e) => leads.current_page === 1 && e.preventDefault()}
-                            >
-                                Previous
-                            </Link>
-                            
-                            {[...Array(leads.last_page)].map((_, index) => (
-                                <Link
-                                    key={index + 1}
-                                    href={employees.report(employee.id, { page: index + 1 })}
-                                    className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
-                                        leads.current_page === index + 1
-                                            ? 'bg-blue-600 text-white border-blue-600'
-                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    {index + 1}
-                                </Link>
-                            ))}
-                            
-                            <Link
-                                href={employees.report(employee.id, { page: leads.current_page + 1 })}
-                                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                    leads.current_page === leads.last_page
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                                }`}
-                                onClick={(e) => leads.current_page === leads.last_page && e.preventDefault()}
-                            >
-                                Next
-                            </Link>
-                        </div>
-                    </div>
-                )}
+                {/* Pagination */}
+{leads.data && leads.data.length > 0 && (
+    <div className="mt-6 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+        <div className="text-sm text-gray-700">
+            Showing <span className="font-medium">{leads.from}</span> to <span className="font-medium">{leads.to}</span> of <span className="font-medium">{leads.total}</span> results
+        </div>
+        
+        <div className="flex items-center space-x-1">
+            {/* Previous Button */}
+            {leads.current_page > 1 ? (
+                <Link
+                    href={`/employees/${employee.id}/report?page=${leads.current_page - 1}`}
+                    className="px-3 py-2 text-sm font-medium bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    preserveScroll
+                >
+                    Previous
+                </Link>
+            ) : (
+                <span className="px-3 py-2 text-sm font-medium bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed">
+                    Previous
+                </span>
+            )}
+            
+            {/* Page Numbers */}
+            {(() => {
+                const pages = [];
+                const maxVisiblePages = 5;
+                const currentPage = leads.current_page;
+                const lastPage = leads.last_page;
+                
+                if (lastPage <= maxVisiblePages) {
+                    // Show all pages if total pages is small
+                    for (let i = 1; i <= lastPage; i++) {
+                        pages.push(i);
+                    }
+                } else {
+                    // Calculate range of pages to show
+                    let start = Math.max(2, currentPage - 1);
+                    let end = Math.min(lastPage - 1, currentPage + 1);
+                    
+                    // Adjust if near the beginning
+                    if (currentPage <= 3) {
+                        end = Math.min(maxVisiblePages - 1, lastPage - 1);
+                    }
+                    
+                    // Adjust if near the end
+                    if (currentPage >= lastPage - 2) {
+                        start = Math.max(2, lastPage - maxVisiblePages + 2);
+                    }
+                    
+                    // Always show first page
+                    pages.push(1);
+                    
+                    // Add ellipsis after first page if needed
+                    if (start > 2) {
+                        pages.push('...');
+                    }
+                    
+                    // Add middle pages
+                    for (let i = start; i <= end; i++) {
+                        pages.push(i);
+                    }
+                    
+                    // Add ellipsis before last page if needed
+                    if (end < lastPage - 1) {
+                        pages.push('...');
+                    }
+                    
+                    // Always show last page
+                    if (lastPage > 1) {
+                        pages.push(lastPage);
+                    }
+                }
+                
+                return pages.map((page, index) => {
+                    if (page === '...') {
+                        return (
+                            <span key={`ellipsis-${index}`} className="px-3 py-2 text-sm text-gray-500">
+                                ...
+                            </span>
+                        );
+                    }
+                    
+                    const isCurrent = page === leads.current_page;
+                    
+                    return (
+                        <Link
+                            key={page}
+                            href={`/employees/${employee.id}/report?page=${page}`}
+                            className={`px-3 py-2 text-sm font-medium border rounded-lg transition-colors ${
+                                isCurrent
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            }`}
+                            preserveScroll
+                        >
+                            {page}
+                        </Link>
+                    );
+                });
+            })()}
+            
+            {/* Next Button */}
+            {leads.current_page < leads.last_page ? (
+                <Link
+                    href={`/employees/${employee.id}/report?page=${leads.current_page + 1}`}
+                    className="px-3 py-2 text-sm font-medium bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    preserveScroll
+                >
+                    Next
+                </Link>
+            ) : (
+                <span className="px-3 py-2 text-sm font-medium bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed">
+                    Next
+                </span>
+            )}
+        </div>
+    </div>
+)}
 
                 {/* Print Styles (hidden on screen) */}
                 <style>

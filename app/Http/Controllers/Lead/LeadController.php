@@ -12,7 +12,7 @@ class LeadController extends Controller
     {
         $leads = Lead::latest()->paginate(10);
         
-        return Inertia::render('leads/LeadList', [
+        return Inertia::render('leads/leadList', [
             'leads' => $leads
         ]);
     }
